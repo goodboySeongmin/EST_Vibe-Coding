@@ -36,7 +36,6 @@ const QUICK_PROMPTS = [
 
 export default function HomePage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
-  // ✅ 옵션 B: 처음에는 어떤 세션도 선택하지 않은 상태로 시작
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,15 +45,10 @@ export default function HomePage() {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
-
       const parsed = JSON.parse(raw) as ChatSession[];
       if (Array.isArray(parsed) && parsed.length > 0) {
         setSessions(parsed);
-
-        // ✅ 옵션 B 핵심:
-        // 저장된 세션들은 왼쪽 리스트에만 보여주고,
-        // 중앙 채팅 영역은 아무 세션도 선택하지 않은 상태로 둔다.
-        setActiveId(null);
+        setActiveId(parsed[0].id);
       }
     } catch (e) {
       console.error("Failed to load sessions", e);
@@ -109,7 +103,7 @@ export default function HomePage() {
     const trimmed = text.trim();
     if (!trimmed || loading) return;
 
-    // ✅ 세션이 선택되어 있지 않으면 새 세션부터 만든다.
+    // 세션 없으면 새로 생성
     let sessionId = activeId;
     if (!sessionId) {
       const id = createId();
@@ -203,9 +197,9 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 text-slate-900 text-[16px] md:text-[17px]">
-      {/* 전체 폭을 조금 더 넓힘 */}
-      <div className="max-w-[1500px] mx-auto min-h-screen px-6 py-8 flex gap-5">
+    <main className="h-screen bg-gradient-to-b from-sky-50 via-white to-slate-50 text-slate-900 text-[16px] md:text-[17px] overflow-hidden">
+      {/* 화면 전체 높이를 쓰고 내부만 스크롤 */}
+      <div className="h-full max-w-[1500px] mx-auto px-6 py-8 flex gap-5">
         {/* 좌측: 최근 대화 리스트 */}
         <nav className="hidden md:flex flex-col w-60 rounded-2xl bg-white/90 border border-slate-200 shadow-md">
           <div className="px-4 pt-4 pb-2 flex items-center justify-between border-b border-slate-100">
@@ -248,7 +242,7 @@ export default function HomePage() {
         </nav>
 
         {/* 중앙 + 우측 */}
-        <section className="flex-1 flex flex-col gap-4">
+        <section className="flex-1 flex flex-col gap-4 min-h-0">
           {/* 상단 글로벌 헤더 */}
           <header className="rounded-2xl bg-white/90 border border-slate-200 px-5 py-4 flex items-center justify-between shadow-md">
             <div className="flex items-center gap-3">
@@ -272,9 +266,8 @@ export default function HomePage() {
           {/* 가운데/오른쪽 영역 */}
           <div className="flex gap-2 flex-1 min-h-0">
             {/* 채팅 영역 */}
-            <div className="flex-1 flex flex-col rounded-2xl bg-white/95 border border-slate-200 shadow-md">
+            <div className="flex-1 flex flex-col rounded-2xl bg-white/95 border border-slate-200 shadow-md min-h-0">
               <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-                {/* ✅ 옵션 B: activeSession 이 없거나, 메시지가 없으면 웰컴 화면 */}
                 {!activeSession || activeSession.messages.length === 0 ? (
                   <div className="mt-4 text-[15px] md:text-[16px] text-slate-600">
                     <p className="mb-2">
