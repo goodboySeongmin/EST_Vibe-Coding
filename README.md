@@ -3,6 +3,7 @@
 Perso.ai의 **벡터 DB 기반 FAQ 챗봇**입니다.  
 제공된 Q&A 데이터셋만을 사용해, **할루시네이션 없이 정확한 답변**을 반환하는 것을 목표로 합니다.
 
+[Perso.ai Support](https://perso-support.vercel.app/)
 ---
 
 ## 1. 프로젝트 개요
