@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type ChatMessage = {
   id: string;
@@ -40,6 +40,9 @@ export default function HomePage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ 채팅 영역 DOM 참조용
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+
   // 세션 로딩
   useEffect(() => {
     try {
@@ -68,6 +71,19 @@ export default function HomePage() {
     () => sessions.find((s) => s.id === activeId) ?? null,
     [sessions, activeId]
   );
+
+  // ✅ 메시지가 바뀔 때마다 스크롤을 맨 아래로
+  useEffect(() => {
+    if (!messagesContainerRef.current) return;
+    const el = messagesContainerRef.current;
+
+    // 약간의 딜레이를 주면 렌더 후 스크롤이 더 안정적으로 맞음
+    const timeout = setTimeout(() => {
+      el.scrollTop = el.scrollHeight;
+    }, 50);
+
+    return () => clearTimeout(timeout);
+  }, [activeId, sessions, loading]);
 
   const startNewSession = () => {
     const id = createId();
@@ -267,7 +283,10 @@ export default function HomePage() {
           <div className="flex gap-2 flex-1 min-h-0">
             {/* 채팅 영역 */}
             <div className="flex-1 flex flex-col rounded-2xl bg-white/95 border border-slate-200 shadow-md min-h-0">
-              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+              <div
+                ref={messagesContainerRef} // ✅ 여기 ref 연결
+                className="flex-1 overflow-y-auto px-5 py-4 space-y-4"
+              >
                 {!activeSession || activeSession.messages.length === 0 ? (
                   <div className="mt-4 text-[15px] md:text-[16px] text-slate-600">
                     <p className="mb-2">
