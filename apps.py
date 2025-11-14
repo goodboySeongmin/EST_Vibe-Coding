@@ -92,7 +92,7 @@ def rewrite_query(user_message: str) -> str:
 def search_qa(
     user_query: str,
     top_k: int = 3,
-    score_threshold: float = 0.7,
+    score_threshold: float = 0.55,
 ):
     """
     주어진 문장(user_query)을 임베딩하여 Pinecone에서
